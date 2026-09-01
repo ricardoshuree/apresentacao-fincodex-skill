@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apresentação Padrão finCodex — Skill para Claude</title>
+<meta name="description" content="Skill para Claude Desktop · FinOps que gera apresentações HTML interativas no padrão visual finCodex. Um único arquivo HTML com navegação, roteiro popup e biblioteca completa de componentes.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+/* ── TOKENS ── */
+:root {
+  --bg:        #EAE0CC;
+  --surface:   #FFFFFF;
+  --surface-2: #F5EDD8;
+  --border:    #D2C8AA;
+  --border-hi: #BEB096;
+  --olive:     #C08830;
+  --olive-dim: rgba(192,136,48,0.10);
+  --olive-dark:#8C6018;
+  --text:      #1E0E05;
+  --text-2:    #2C1A08;
+  --text-muted:#6B5A46;
+  --ff-head:   'Space Grotesk', sans-serif;
+  --ff-mono:   'JetBrains Mono', monospace;
+  --max:       1200px;
+  --r:         12px;
+}
+
+body {
+  font-family: var(--ff-head);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── UTILITIES ── */
+.mono  { font-family: var(--ff-mono); }
+.olive { color: var(--olive); }
+.muted { color: var(--text-muted); }
+.wrap  { max-width: var(--max); margin: 0 auto; padding: 0 32px; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(234,235,233,0.88);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  height: 56px;
+  display: flex; align-items: center;
+}
+.nav-inner {
+  max-width: var(--max); margin: 0 auto; padding: 0 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%;
+}
+.nav-logo {
+  font-size: 15px; font-weight: 800; letter-spacing: -.3px;
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: var(--text);
+}
+.nav-logo-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--olive); flex-shrink: 0;
+}
+.nav-links {
+  display: flex; align-items: center; gap: 28px;
+  list-style: none;
+}
+.nav-links a {
+  font-size: 13px; font-weight: 500; color: var(--text-2);
+  text-decoration: none; transition: color .15s;
+}
+.nav-links a:hover { color: var(--olive); }
+.nav-cta {
+  display: flex; align-items: center; gap: 10px;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 20px; border-radius: 8px;
+  font-family: var(--ff-head); font-size: 13px; font-weight: 600;
+  text-decoration: none; transition: all .18s; cursor: pointer; border: none;
+}
+.btn-primary {
+  background: var(--olive); color: #fff;
+}
+.btn-primary:hover { background: var(--olive-dark); transform: translateY(-1px); }
+.btn-ghost {
+  background: transparent; color: var(--text-2);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { border-color: var(--olive); color: var(--olive); }
+
+/* ── HERO ── */
+.hero {
+  padding: 140px 0 100px;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; top: -80px; right: -120px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(192,136,48,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--ff-mono); font-size: 11px; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--olive);
+  background: var(--olive-dim); border: 1px solid rgba(122,116,35,0.2);
+  padding: 5px 12px; border-radius: 20px; margin-bottom: 28px;
+}
+.hero-eyebrow span { width: 6px; height: 6px; border-radius: 50%; background: var(--olive); }
+.hero-title {
+  font-size: clamp(40px, 5.5vw, 72px); font-weight: 800;
+  letter-spacing: -2px; line-height: 1.05;
+  max-width: 800px; margin-bottom: 24px;
+}
+.hero-title em {
+  font-style: normal; color: var(--olive);
+  position: relative;
+}
+.hero-sub {
+  font-size: clamp(16px, 1.4vw, 20px); color: var(--text-2);
+  max-width: 560px; line-height: 1.65; margin-bottom: 40px;
+}
+.hero-actions {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  margin-bottom: 72px;
+}
+.hero-actions .btn { font-size: 15px; padding: 12px 26px; }
+
+/* ── MINI DECK (hero visual) ── */
+.hero-deck-wrap {
+  position: relative; max-width: 900px;
+}
+.deck-browser {
+  background: #32180A;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(255,255,255,0.06);
+}
+.deck-chrome {
+  background: #3C1E0A;
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid #333;
+}
+.deck-dots { display: flex; gap: 6px; }
+.deck-dot { width: 12px; height: 12px; border-radius: 50%; }
+.deck-addressbar {
+  flex: 1; background: #32180A; border-radius: 6px;
+  padding: 5px 12px; font-family: var(--ff-mono); font-size: 11px;
+  color: #666; display: flex; align-items: center; gap: 6px;
+}
+.deck-lock { font-size: 10px; color: #4ADE80; }
+.deck-body {
+  padding: 36px 48px 32px;
+  min-height: 320px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  background: linear-gradient(135deg, #1E0E05 0%, #281408 100%);
+}
+.deck-slide-eye {
+  font-family: var(--ff-mono); font-size: 10px;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--olive); margin-bottom: 10px;
+}
+.deck-slide-title {
+  font-size: clamp(22px, 3vw, 36px); font-weight: 800;
+  color: #fff; line-height: 1.15; letter-spacing: -.5px;
+  margin-bottom: 8px;
+}
+.deck-slide-title em { font-style: normal; color: var(--olive); }
+.deck-slide-sub {
+  font-size: 14px; color: #666; font-family: var(--ff-mono);
+}
+.deck-nav {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+  padding: 14px 16px;
+  background: #32180A; border-top: 1px solid #222;
+  position: relative;
+}
+.deck-progress {
+  position: absolute; top: 0; left: 0;
+  height: 2px; background: var(--olive);
+  transition: width .4s cubic-bezier(.4,0,.2,1);
+}
+.deck-arrow {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #3C1E0A; border: 1px solid #333;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: #888; font-size: 14px;
+  transition: all .15s; user-select: none;
+}
+.deck-arrow:hover { background: #333; color: #fff; }
+.deck-dots-row { display: flex; gap: 5px; align-items: center; }
+.deck-ndot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #333; transition: all .3s; cursor: pointer;
+}
+.deck-ndot.on { background: var(--olive); width: 16px; border-radius: 3px; }
+.deck-counter {
+  font-family: var(--ff-mono); font-size: 11px; color: #444;
+  min-width: 52px; text-align: center;
+}
+.deck-pill {
+  font-family: var(--ff-mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 1px; padding: 4px 10px; border-radius: 20px;
+  border: 1px solid #333; color: #666; cursor: pointer;
+  transition: all .15s;
+}
+.deck-pill:hover { border-color: var(--olive); color: var(--olive); }
+
+/* ── STATS BAR ── */
+.stats-bar {
+  padding: 40px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin: 80px 0;
+}
+.stats-inner {
+  display: flex; align-items: center; justify-content: space-around;
+  gap: 32px; flex-wrap: wrap;
+}
+.stat-item { text-align: center; }
+.stat-num {
+  font-size: 42px; font-weight: 800; letter-spacing: -1.5px;
+  color: var(--olive); line-height: 1;
+}
+.stat-lbl {
+  font-family: var(--ff-mono); font-size: 11px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text-muted); margin-top: 6px;
+}
+.stat-sep {
+  width: 1px; height: 48px; background: var(--border);
+}
+
+/* ── SECTIONS ── */
+.section { padding: 96px 0; }
+.section-eyebrow {
+  font-family: var(--ff-mono); font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--olive); margin-bottom: 14px;
+}
+.section-title {
+  font-size: clamp(28px, 3vw, 42px); font-weight: 800;
+  letter-spacing: -1px; line-height: 1.1; margin-bottom: 16px;
+}
+.section-sub {
+  font-size: 17px; color: var(--text-2); max-width: 520px; line-height: 1.65;
+}
+
+/* ── FEATURES GRID ── */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px; margin-top: 56px;
+}
+.feat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 28px 26px;
+  transition: border-color .2s, transform .2s;
+  position: relative; overflow: hidden;
+}
+.feat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px; background: var(--olive);
+  opacity: 0; transition: opacity .2s;
+}
+.feat-card:hover { border-color: var(--border-hi); transform: translateY(-2px); }
+.feat-card:hover::before { opacity: 1; }
+.feat-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--olive-dim); border: 1px solid rgba(192,136,48,0.18);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; margin-bottom: 16px;
+}
+.feat-title {
+  font-size: 15px; font-weight: 700; margin-bottom: 8px; letter-spacing: -.2px;
+}
+.feat-desc {
+  font-size: 13px; color: var(--text-2); line-height: 1.6;
+}
+.feat-tag {
+  display: inline-block; margin-top: 14px;
+  font-family: var(--ff-mono); font-size: 10px; font-weight: 500;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--olive); background: var(--olive-dim);
+  padding: 3px 9px; border-radius: 4px;
+}
+
+/* ── COMPONENTES MARQUEE ── */
+.components-section { padding: 80px 0; background: var(--surface-2); }
+.marquee-wrap { overflow: hidden; margin-top: 40px; }
+.marquee-track {
+  display: flex; gap: 12px;
+  animation: marquee 28s linear infinite;
+  width: max-content;
+}
+.marquee-track:hover { animation-play-state: paused; }
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.comp-pill {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 16px;
+  white-space: nowrap; font-size: 13px; font-weight: 500;
+  color: var(--text-2);
+}
+.comp-pill-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--olive); flex-shrink: 0; }
+
+/* ── TEMAS ── */
+.themes-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 48px;
+}
+.theme-card {
+  border-radius: var(--r); overflow: hidden;
+  border: 1px solid var(--border);
+  transition: transform .2s, box-shadow .2s;
+}
+.theme-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.10); }
+.theme-preview {
+  height: 140px; display: flex; flex-direction: column;
+  justify-content: flex-end; padding: 20px; position: relative;
+}
+.theme-preview-logo {
+  position: absolute; top: 14px; right: 16px;
+  font-size: 11px; font-weight: 800;
+}
+.theme-preview-ctr {
+  position: absolute; top: 14px; left: 16px;
+  font-family: var(--ff-mono); font-size: 9px; letter-spacing: 1px;
+}
+.theme-preview-title {
+  font-size: 17px; font-weight: 800; letter-spacing: -.3px; line-height: 1.2;
+}
+.theme-preview-sub {
+  font-size: 10px; font-family: var(--ff-mono); margin-top: 4px; opacity: .6;
+}
+.theme-progress {
+  position: absolute; bottom: 0; left: 0;
+  height: 2px; width: 38%;
+}
+.theme-info {
+  padding: 16px 20px; background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+.theme-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.theme-palette { display: flex; gap: 6px; align-items: center; }
+.theme-swatch {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+.theme-mode {
+  font-family: var(--ff-mono); font-size: 10px; color: var(--text-muted);
+  margin-left: auto;
+}
+
+/* ── INSTALAÇÃO ── */
+.install-section { padding: 96px 0; }
+.install-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 64px;
+  align-items: start; margin-top: 56px;
+}
+.steps { display: flex; flex-direction: column; gap: 0; }
+.step {
+  display: grid; grid-template-columns: 48px 1fr; gap: 20px;
+  padding: 24px 0; border-bottom: 1px solid var(--border);
+}
+.step:last-child { border-bottom: none; }
+.step-num {
+  font-family: var(--ff-mono); font-size: 22px; font-weight: 800;
+  color: var(--olive); opacity: .35; line-height: 1; padding-top: 3px;
+}
+.step-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.step-desc { font-size: 13px; color: var(--text-2); line-height: 1.6; }
+.step-code {
+  margin-top: 10px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 10px 14px;
+  font-family: var(--ff-mono); font-size: 12px; color: var(--olive);
+  line-height: 1.5;
+}
+.install-visual {
+  position: sticky; top: 80px;
+}
+.code-block {
+  background: #1E0E05; border-radius: var(--r);
+  overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+.code-block-top {
+  background: #32180A; padding: 12px 16px;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid #222;
+}
+.code-block-dot { width: 10px; height: 10px; border-radius: 50%; }
+.code-block-title {
+  font-family: var(--ff-mono); font-size: 11px; color: #555; margin-left: 4px;
+}
+.code-block-body {
+  padding: 24px; font-family: var(--ff-mono); font-size: 13px;
+  line-height: 2; color: #888;
+}
+.code-block-body .c-comment { color: #444; }
+.code-block-body .c-key     { color: #C08830; }
+.code-block-body .c-val     { color: #B8B235; }
+.code-block-body .c-str     { color: #4ADE80; }
+.code-block-body .c-prompt  { color: #555; }
+.code-block-body .c-claude  { color: #aaa; }
+
+/* ── GUIA CTA ── */
+.guia-section {
+  padding: 80px 0;
+  background: #1E0E05;
+  color: #fff;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.guia-section::before {
+  content: '';
+  position: absolute; top: -100px; left: 50%; transform: translateX(-50%);
+  width: 700px; height: 400px;
+  background: radial-gradient(ellipse, rgba(192,136,48,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+.guia-section .section-eyebrow { color: var(--olive); }
+.guia-section .section-title { color: #fff; max-width: 640px; margin: 0 auto 16px; }
+.guia-section .section-sub { color: #666; margin: 0 auto 36px; }
+.guia-slides {
+  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+  margin-top: 48px; margin-bottom: -40px;
+}
+.guia-slide-pill {
+  font-family: var(--ff-mono); font-size: 11px;
+  padding: 5px 12px; border-radius: 20px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  color: #555; white-space: nowrap;
+}
+.guia-slide-pill.active {
+  background: var(--olive-dim); border-color: rgba(122,116,35,0.3);
+  color: var(--olive);
+}
+
+/* ── FOOTER ── */
+footer {
+  padding: 40px 0;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%;
+}
+.footer-brand {
+  font-size: 13px; font-weight: 800; color: var(--text-muted);
+  display: flex; align-items: center; gap: 8px;
+}
+.footer-brand span { color: var(--olive); }
+.footer-links {
+  display: flex; gap: 24px; list-style: none;
+}
+.footer-links a {
+  font-size: 12px; color: var(--text-muted);
+  text-decoration: none; transition: color .15s;
+}
+.footer-links a:hover { color: var(--olive); }
+
+/* ── REVEAL ANIMATION ── */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .features-grid  { grid-template-columns: 1fr 1fr; }
+  .themes-grid    { grid-template-columns: 1fr; }
+  .install-grid   { grid-template-columns: 1fr; }
+  .install-visual { display: none; }
+  .stat-sep       { display: none; }
+}
+@media (max-width: 600px) {
+  .wrap           { padding: 0 20px; }
+  .features-grid  { grid-template-columns: 1fr; }
+  .hero           { padding: 100px 0 60px; }
+  .nav-links      { display: none; }
+  .hero-actions   { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-dot"></div>
+      finCodex Skill
+    </a>
+    <ul class="nav-links">
+      <li><a href="#funcionalidades">Funcionalidades</a></li>
+      <li><a href="#temas">Temas</a></li>
+      <li><a href="#instalacao">Instalação</a></li>
+      <li><a href="#guia">Guia de Bolso</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="guia-bolso-fincodex-skill.html" class="btn btn-ghost" target="_blank">Ver Guia →</a>
+      <a href="apresentacao-padrao-fincodex-skill.zip" class="btn btn-primary" download>↓ Download Skill</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow">
+      <span></span>
+      Skill para Claude Desktop · FinOps
+    </div>
+    <h1 class="hero-title">
+      Apresentações <em>finCodex</em><br>geradas pelo Claude.
+    </h1>
+    <p class="hero-sub">
+      Um skill que transforma qualquer outline em um deck HTML interativo com navegação, roteiro popup e biblioteca completa de componentes — no padrão visual da finCodex.
+    </p>
+    <div class="hero-actions">
+      <a href="apresentacao-padrao-fincodex-skill.zip" class="btn btn-primary" download>
+        ↓ &nbsp;Baixar Skill (ZIP)
+      </a>
+      <a href="guia-bolso-fincodex-skill.html" class="btn btn-ghost" target="_blank">
+        Explorar Guia de Bolso →
+      </a>
+    </div>
+
+    <!-- Mini deck interativo -->
+    <div class="hero-deck-wrap reveal">
+      <div class="deck-browser">
+        <div class="deck-chrome">
+          <div class="deck-dots">
+            <div class="deck-dot" style="background:#FF5F57"></div>
+            <div class="deck-dot" style="background:#FEBC2E"></div>
+            <div class="deck-dot" style="background:#28C840"></div>
+          </div>
+          <div class="deck-addressbar">
+            <span class="deck-lock">🔒</span>
+            <span>apresentacao-falconi.html</span>
+          </div>
+        </div>
+        <div class="deck-body">
+          <div>
+            <div class="deck-slide-eye" id="deck-eye">FinOps</div>
+            <div class="deck-slide-title" id="deck-title">Saving de <em>R$ 4.2M</em><br>identificado em 30 dias.</div>
+            <div class="deck-slide-sub mono" id="deck-sub" style="color:#444">Pipeline de hipóteses · Azure + OCI</div>
+          </div>
+          <div></div>
+        </div>
+        <div class="deck-nav">
+          <div class="deck-progress" id="deck-prog" style="width:28%"></div>
+          <div class="deck-arrow" onclick="deckGo(-1)">←</div>
+          <div class="deck-dots-row" id="deck-dots"></div>
+          <div class="deck-counter mono" id="deck-ctr">02 / 06</div>
+          <div class="deck-arrow" onclick="deckGo(1)">→</div>
+          <div class="deck-pill">R</div>
+          <div class="deck-pill">CLARO</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── STATS ── -->
+<div class="wrap">
+  <div class="stats-bar reveal">
+    <div class="stats-inner">
+      <div class="stat-item">
+        <div class="stat-num mono">19</div>
+        <div class="stat-lbl">slides no guia</div>
+      </div>
+      <div class="stat-sep"></div>
+      <div class="stat-item">
+        <div class="stat-num mono">40+</div>
+        <div class="stat-lbl">componentes</div>
+      </div>
+      <div class="stat-sep"></div>
+      <div class="stat-item">
+        <div class="stat-num mono">3</div>
+        <div class="stat-lbl">temas</div>
+      </div>
+      <div class="stat-sep"></div>
+      <div class="stat-item">
+        <div class="stat-num mono">1</div>
+        <div class="stat-lbl">arquivo .html</div>
+      </div>
+      <div class="stat-sep"></div>
+      <div class="stat-item">
+        <div class="stat-num mono">0</div>
+        <div class="stat-lbl">dependências</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FUNCIONALIDADES ── -->
+<section class="section" id="funcionalidades">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="section-eyebrow">Funcionalidades</div>
+      <h2 class="section-title">Tudo que uma apresentação<br>executiva precisa.</h2>
+      <p class="section-sub">Do outline ao arquivo final em 3 fases. O Claude cuida do design, você cuida da narrativa.</p>
+    </div>
+    <div class="features-grid">
+
+      <div class="feat-card reveal">
+        <div class="feat-icon">⌨</div>
+        <div class="feat-title">Motor de Navegação</div>
+        <div class="feat-desc">Teclado, swipe touch, dots clicáveis e barra de progresso olive. Funciona em qualquer browser, sem instalação.</div>
+        <div class="feat-tag">← → swipe dots</div>
+      </div>
+
+      <div class="feat-card reveal">
+        <div class="feat-icon">📋</div>
+        <div class="feat-title">Roteiro Popup</div>
+        <div class="feat-desc">Botão R abre uma janela separada com timer, sincronização automática com o slide ativo e estimativa de tempo por slide.</div>
+        <div class="feat-tag">timer · sync · HH:MM:SS</div>
+      </div>
+
+      <div class="feat-card reveal">
+        <div class="feat-icon">◑</div>
+        <div class="feat-title">Toggle Claro / Escuro</div>
+        <div class="feat-desc">Alternância em runtime sem recarregar. CSS variables trocadas globalmente em milissegundos.</div>
+        <div class="feat-tag">runtime · sem reload</div>
+      </div>
+
+      <div class="feat-card reveal">
+        <div class="feat-icon">📊</div>
+        <div class="feat-title">Line Chart Interativo</div>
+        <div class="feat-desc">Crosshair que segue o mouse via SVG + mousemove. Valor dinâmico atualizado em tempo real. Área com glow e projeção pontilhada.</div>
+        <div class="feat-tag">crosshair · SVG · Bézier</div>
+      </div>
+
+      <div class="feat-card reveal">
+        <div class="feat-icon">⚙</div>
+        <div class="feat-title">Gauge Canvas 2D</div>
+        <div class="feat-desc">Ponteiro animado via canvas. 4 variantes: base, numérico, textual por zona e dashboard KPI.</div>
+        <div class="feat-tag">canvas · 4 variantes</div>
+      </div>
+
+      <div class="feat-card reveal">
+        <div class="feat-icon">▶</div>
+        <div class="feat-title">Isometric Conveyor</div>
+        <div class="feat-desc">Esteira animada com cubos coloridos por estado — success, running, pending, error. Metáfora visual para pipelines de dados.</div>
+        <div class="feat-tag">SVG · animação CSS</div>
+      </div>
+
+      <div class="feat-card reveal">
+        <div class="feat-icon">⬡</div>
+        <div class="feat-title">Pipeline com Estados</div>
+        <div class="feat-desc">Nós coloridos com animação de fluxo entre etapas. Estados: active, ok, error, pending.</div>
+        <div class="feat-tag">pnode · pdot · pedge</div>
+      </div>
+
+      <div class="feat-card reveal">
+        <div class="feat-icon">▮</div>
+        <div class="feat-title">Terminal & Code</div>
+        <div class="feat-desc">Diff colorido, cursor blink, REPL, stream de saída. Ideal para slides técnicos e de engenharia.</div>
+        <div class="feat-tag">diff · REPL · blink</div>
+      </div>
+
+      <div class="feat-card reveal">
+        <div class="feat-icon">◎</div>
+        <div class="feat-title">Charts Tab Switcher</div>
+        <div class="feat-desc">Bar, Linha e Donut com troca animada via tabs. Legenda interativa com destaque por clique.</div>
+        <div class="feat-tag">bar · line · donut</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── COMPONENTES MARQUEE ── -->
+<div class="components-section">
+  <div class="wrap reveal">
+    <div class="section-eyebrow">Biblioteca de componentes</div>
+    <h2 class="section-title" style="font-size:clamp(22px,2.5vw,32px)">40+ componentes prontos para usar.</h2>
+  </div>
+  <div class="marquee-wrap" style="margin-top:32px">
+    <div class="marquee-track" id="marquee">
+      <!-- Duplicado para loop contínuo -->
+    </div>
+  </div>
+</div>
+
+<!-- ── TEMAS ── -->
+<section class="section" id="temas">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="section-eyebrow">Temas</div>
+      <h2 class="section-title">Três identidades visuais,<br>um motor.</h2>
+      <p class="section-sub">Escolha o tema na Fase 1 e o Claude aplica toda a paleta, tipografia e CSS variables automaticamente.</p>
+    </div>
+    <div class="themes-grid">
+
+      <!-- finCodex -->
+      <div class="theme-card reveal">
+        <div class="theme-preview" style="background:#EAE0CC">
+          <div class="theme-preview-logo" style="color:#1E0E05">finCodex</div>
+          <div class="theme-preview-ctr mono" style="color:#888;font-size:9px">03 / 18</div>
+          <div class="theme-preview-title" style="color:#1E0E05">Identidade <span style="color:#C08830">visual.</span></div>
+          <div class="theme-preview-sub" style="color:#888">Theme & Brand · CSS variables</div>
+          <div class="theme-progress" style="background:#C08830"></div>
+        </div>
+        <div class="theme-info">
+          <div class="theme-name">finCodex <span class="mono muted" style="font-size:11px;font-weight:400">padrão</span></div>
+          <div class="theme-palette">
+            <div class="theme-swatch" style="background:#EAE0CC"></div>
+            <div class="theme-swatch" style="background:#C08830"></div>
+            <div class="theme-swatch" style="background:#1E0E05"></div>
+            <div class="theme-mode mono">CLARO</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Midnight -->
+      <div class="theme-card reveal">
+        <div class="theme-preview" style="background:#1E0E05">
+          <div class="theme-preview-logo" style="color:#fff">finCodex</div>
+          <div class="theme-preview-ctr mono" style="color:#444;font-size:9px">05 / 18</div>
+          <div class="theme-preview-title" style="color:#fff">Pipeline de <span style="color:#D4A017">hipóteses.</span></div>
+          <div class="theme-preview-sub" style="color:#444">FinOps · Azure + OCI</div>
+          <div class="theme-progress" style="background:#D4A017"></div>
+        </div>
+        <div class="theme-info">
+          <div class="theme-name">Midnight Executive</div>
+          <div class="theme-palette">
+            <div class="theme-swatch" style="background:#1E0E05"></div>
+            <div class="theme-swatch" style="background:#D4A017"></div>
+            <div class="theme-swatch" style="background:#fff;border:1px solid #eee"></div>
+            <div class="theme-mode mono">ESCURO</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Terracotta -->
+      <div class="theme-card reveal">
+        <div class="theme-preview" style="background:#F5EFE6">
+          <div class="theme-preview-logo" style="color:#2C1810">finCodex</div>
+          <div class="theme-preview-ctr mono" style="color:#A89880;font-size:9px">07 / 18</div>
+          <div class="theme-preview-title" style="color:#2C1810">Resultados <span style="color:#C4622D">Q3.</span></div>
+          <div class="theme-preview-sub" style="color:#A89880">Executive · Claro</div>
+          <div class="theme-progress" style="background:#C4622D"></div>
+        </div>
+        <div class="theme-info">
+          <div class="theme-name">Warm Terracotta</div>
+          <div class="theme-palette">
+            <div class="theme-swatch" style="background:#F5EFE6"></div>
+            <div class="theme-swatch" style="background:#C4622D"></div>
+            <div class="theme-swatch" style="background:#2C1810"></div>
+            <div class="theme-mode mono">CLARO</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── INSTALAÇÃO ── -->
+<section class="install-section" id="instalacao" style="background:var(--surface-2)">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="section-eyebrow">Instalação</div>
+      <h2 class="section-title">De zero ao primeiro deck<br>em 3 minutos.</h2>
+      <p class="section-sub">Funciona no Claude Desktop para macOS e Windows com conta Pro ou Team.</p>
+    </div>
+    <div class="install-grid">
+      <div class="steps">
+
+        <div class="step reveal">
+          <div class="step-num mono">01</div>
+          <div>
+            <div class="step-title">Baixar e descompactar</div>
+            <div class="step-desc">Faça o download do arquivo ZIP e descompacte em uma pasta de sua preferência.</div>
+            <div class="step-code">apresentacao-padrao-fincodex-skill.zip</div>
+          </div>
+        </div>
+
+        <div class="step reveal">
+          <div class="step-num mono">02</div>
+          <div>
+            <div class="step-title">Abrir o Claude Desktop</div>
+            <div class="step-desc">Acesse as configurações do Claude Desktop e navegue até a seção de Skills.</div>
+            <div class="step-code">Claude → Settings → Skills → Add Skill</div>
+          </div>
+        </div>
+
+        <div class="step reveal">
+          <div class="step-num mono">03</div>
+          <div>
+            <div class="step-title">Selecionar o skill.md</div>
+            <div class="step-desc">Navegue até a pasta descompactada e selecione o arquivo <span class="mono" style="color:var(--olive)">skill.md</span>. O skill aparecerá na lista como <strong>apresentacao-padrao-falconi</strong>.</div>
+          </div>
+        </div>
+
+        <div class="step reveal" style="border-bottom:none">
+          <div class="step-num mono">→</div>
+          <div>
+            <div class="step-title">Começar a usar</div>
+            <div class="step-desc">Inicie uma conversa e descreva o que você quer apresentar. O Claude guia você pelas 3 fases: Plano → Design → Montagem.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="install-visual reveal">
+        <div class="code-block">
+          <div class="code-block-top">
+            <div class="code-block-dot" style="background:#FF5F57"></div>
+            <div class="code-block-dot" style="background:#FEBC2E"></div>
+            <div class="code-block-dot" style="background:#28C840"></div>
+            <div class="code-block-title">claude · apresentacao-padrao-falconi</div>
+          </div>
+          <div class="code-block-body">
+            <div class="c-comment"># Você</div>
+            <div class="c-claude" style="margin-bottom:16px">Crie uma apresentação finCodex sobre o diagnóstico FinOps do Q3. Hipóteses identificadas e saving projetado.</div>
+            <div class="c-comment"># Claude — Fase 1</div>
+            <div class="c-claude" style="margin-bottom:16px">Entendido. Aqui está o plano de 8 slides:<br>
+              <span class="c-key">01</span> Cover · <span class="c-val">Statement</span><br>
+              <span class="c-key">02</span> Contexto · <span class="c-val">Stat Cards</span><br>
+              <span class="c-key">03</span> Pipeline · <span class="c-val">Flow nodes</span><br>
+              <span class="c-key">04</span> Saving · <span class="c-val">Gauge Canvas</span><br>
+              <span class="c-key">05</span> Evolução · <span class="c-val">Line Chart</span><br>
+              <span class="c-key">06</span> Próximos passos · <span class="c-val">Timeline</span>
+            </div>
+            <div class="c-comment"># Claude — Fase 2</div>
+            <div class="c-claude">Construindo slide 01...<br>
+              <span style="color:#4ADE80">✓</span> Preview gerado. Aprovado?
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── GUIA CTA ── -->
+<section class="guia-section" id="guia">
+  <div class="wrap">
+    <div class="section-eyebrow reveal">Guia de Bolso</div>
+    <h2 class="section-title reveal">Veja todos os componentes<br>ao vivo.</h2>
+    <p class="section-sub reveal">19 slides interativos demonstrando cada componente disponível no skill — do gauge animado ao line chart com crosshair.</p>
+    <div style="margin-top:32px" class="reveal">
+      <a href="guia-bolso-fincodex-skill.html" class="btn btn-primary" target="_blank" style="font-size:16px;padding:14px 32px">
+        Abrir Guia de Bolso →
+      </a>
+    </div>
+
+    <div class="guia-slides reveal">
+      <div class="guia-slide-pill active">Foundation</div>
+      <div class="guia-slide-pill active">Terminal & Code</div>
+      <div class="guia-slide-pill active">Flow & Pipelines</div>
+      <div class="guia-slide-pill active">Data Visualization</div>
+      <div class="guia-slide-pill active">Estilos Visuais</div>
+      <div class="guia-slide-pill active">Gauge Canvas 2D</div>
+      <div class="guia-slide-pill active">Multi-state Panel</div>
+      <div class="guia-slide-pill active">Charts Tab Switcher</div>
+      <div class="guia-slide-pill active">Isometric Conveyor</div>
+      <div class="guia-slide-pill active">Line Chart Crosshair</div>
+      <div class="guia-slide-pill active">Motor de Navegação</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="wrap footer-inner">
+    <div class="footer-brand">
+      <div style="width:7px;height:7px;border-radius:50%;background:var(--olive)"></div>
+      fin<span style="font-weight:800">Codex</span> <span>Skill</span>
+    </div>
+    <ul class="footer-links">
+      <li><a href="guia-bolso-fincodex-skill.html" target="_blank">Guia de Bolso</a></li>
+      <li><a href="apresentacao-padrao-fincodex-skill.zip" download>Download</a></li>
+      <li><a href="https://github.com/ricardoshuree/apresentacao-padrao-fincodex-skill" target="_blank">GitHub</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+// ── MINI DECK ──────────────────────────────────────────────
+const deckSlides = [
+  { eye:'FinOps', title:'Saving de <em>R$ 4.2M</em><br>identificado em 30 dias.', sub:'Pipeline de hipóteses · Azure + OCI · Databricks', pct:'16%' },
+  { eye:'Diagnóstico', title:'<em>34%</em> dos recursos<br>sem tag ou responsável.', sub:'Governança de cloud · Multi-cloud · FOCUS Standard', pct:'32%' },
+  { eye:'Data Viz', title:'Line Chart com <em>crosshair</em><br>interativo ao vivo.', sub:'mousemove + SVG · Bézier cúbica · gold #C08830', pct:'50%' },
+  { eye:'Pipeline', title:'Hipótese capturada:<br><em>R$ 340K</em> em rightsizing.', sub:'H-07 · Azure VMs · validação técnica · Q3 2026', pct:'66%' },
+  { eye:'Terminal', title:'Code blocks com <em>diff</em><br>colorido ao vivo.', sub:'Terminal · REPL · cursor blink · JetBrains Mono', pct:'82%' },
+  { eye:'Motor', title:'Navegação <em>nativa</em><br>no browser.', sub:'← → · swipe · dots · roteiro popup com timer', pct:'100%' },
+];
+let dCur = 1;
+
+function deckRender() {
+  const s = deckSlides[dCur];
+  document.getElementById('deck-eye').textContent = s.eye;
+  document.getElementById('deck-title').innerHTML = s.title;
+  document.getElementById('deck-sub').textContent = s.sub;
+  document.getElementById('deck-prog').style.width = s.pct;
+  document.getElementById('deck-ctr').textContent =
+    String(dCur + 1).padStart(2,'0') + ' / ' + String(deckSlides.length).padStart(2,'0');
+  document.querySelectorAll('.deck-ndot').forEach((d,i) => {
+    d.classList.toggle('on', i === dCur);
+  });
+}
+
+function deckGo(dir) {
+  dCur = (dCur + dir + deckSlides.length) % deckSlides.length;
+  deckRender();
+}
+
+// Criar dots
+const dotsEl = document.getElementById('deck-dots');
+deckSlides.forEach((_,i) => {
+  const d = document.createElement('div');
+  d.className = 'deck-ndot' + (i === dCur ? ' on' : '');
+  d.onclick = () => { dCur = i; deckRender(); };
+  dotsEl.appendChild(d);
+});
+deckRender();
+
+// Auto-play
+setInterval(() => deckGo(1), 3500);
+
+// ── MARQUEE ──────────────────────────────────────────────
+const components = [
+  'Stat Card','Cover Stats','Comp Card','Detail Panel','Badge','Progress Bar',
+  'Donut Ring','Eyebrow','Prompt Box','Step Card','Bcard','Terminal','Diff View',
+  'Code Block','REPL','Cursor Blink','Pipeline Linear','Hub-and-Spoke','Data Flow',
+  'Attention Queue','Flow Nodes','Line Chart','Bar Chart','Heatmap','Scatter',
+  'Line Chart Crosshair','Multi-state Panel','Charts Tab Switcher',
+  'Isometric Tower','Blueprint','Exploded View','Isometric Conveyor',
+  'Gauge Canvas 2D','Flow Break','Waveform','Air-Gap','Drift',
+];
+
+const track = document.getElementById('marquee');
+const doubled = [...components, ...components];
+doubled.forEach(c => {
+  const el = document.createElement('div');
+  el.className = 'comp-pill';
+  el.innerHTML = '<div class="comp-pill-dot"></div>' + c;
+  track.appendChild(el);
+});
+
+// ── REVEAL ON SCROLL ──────────────────────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── KEYBOARD NAV DECK ─────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') deckGo(1);
+  if (e.key === 'ArrowLeft')  deckGo(-1);
+});
+</script>
+
+</body>
+</html>
